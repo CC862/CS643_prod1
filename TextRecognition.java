@@ -103,8 +103,8 @@ public class TextRecognition {
             }
 
             // Flush and close the writer after each message
-            writer.flush();
-            writer.close();
+            //writer.flush();
+            //writer.close();
 
             String receiptHandle = message.receiptHandle();
             DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
@@ -114,9 +114,12 @@ public class TextRecognition {
             sqs.deleteMessage(deleteMessageRequest);
         }
 
-        writer = new BufferedWriter(new FileWriter(outputFilePath, true));
+        //writer = new BufferedWriter(new FileWriter(outputFilePath, true));
+        if (writer != null) {
+            writer.close(); // Close the writer after the loop
+        }
 
-        writer.close();
+        //writer.close();
         rekognition.close();
         s3.close();
         sqs.close();
