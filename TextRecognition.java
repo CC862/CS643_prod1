@@ -45,7 +45,7 @@ public class TextRecognition {
         String formattedDateTime = now.format(formatter);
 
         // Create the output file name with the dtate 
-        String outputFilePath = "/output/textrec_output_" + formattedDateTime + ".txt";
+        String outputFilePath = "output/textrec_output_" + formattedDateTime + ".txt";
 
         // Create output file
         File outputFile = new File(outputFilePath);
@@ -81,7 +81,7 @@ public class TextRecognition {
                 break;
             }
             System.out.println("Polling file: " + imageIndex); 
-            
+
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageIndex).build();
             byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
 
