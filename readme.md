@@ -1,6 +1,6 @@
 ## reminder every session edit creds file ##
 1. mkdir ~/.aws
-2. 
+2. nano ~/.aws/credentials
 3. insert current new session creds
   ```
      [default]
