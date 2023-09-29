@@ -8,13 +8,22 @@
      aws_secret_access_key = YOUR_SECRET_KEY
   ```
 
-  ## compile and run program ##
+  ## compile and run program CarDetection.java ##
 1. compile project:
   * mvn compile
 
 2. run program:
   ```
-    mvn exec:java -Dexec.mainClass="cmc.app.CarDetectionApp"
+    mvn exec:java -P car-detection 
+  ```
+
+## compile and run program TextRecognition.java ##
+1. compile project:
+  * mvn compile
+
+2. run program:
+  ```
+    mvn exec:java -P text-recognition
   ```
 
  ## Maven install process and verify  ##
