@@ -9,7 +9,12 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <dependencies>
-        <!-- SPACE FOR dependencies here -->
+        <!-- AWS SDK for Java -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>aws-sdk-java</artifactId>
+            <version>2.17.52</version>  <!-- Use the latest version -->
+    </dependency>
     </dependencies>
     <build>
         <sourceDirectory>/home/ec2-user/CS643_prod1</sourceDirectory>
