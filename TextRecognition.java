@@ -1,5 +1,3 @@
-package cmc.app;
-
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
@@ -95,10 +93,18 @@ public class TextRecognition {
 
             DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
 
+            boolean hasCarAndText = false;
+            StringBuilder lineText = new StringBuilder(imageIndex + ": ");
+
             for (TextDetection text : detectTextResponse.textDetections()) {
                 if (text.type().equals("LINE")) {
-                    outputLines.add(imageIndex + ": " + text.detectedText());
+                    hasCarAndText = true;
+                    lineText.append(text.detectedText()).append(" ");
                 }
+            }
+
+            if (hasCarAndText) {
+                outputLines.add(lineText.toString());
             }
 
             String receiptHandle = message.receiptHandle();
@@ -117,6 +123,7 @@ public class TextRecognition {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("Error writing to file: " + e.getMessage());
         }
 
         rekognition.close();
