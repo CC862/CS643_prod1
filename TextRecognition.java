@@ -87,7 +87,7 @@ public class TextRecognition {
             }
 
             // Add polling information to the output
-            System.out.print("Polling file(printing line): " + imageIndex);
+            System.out.print("Polling file (printing line console): " + imageIndex);
             outputLines.add("Polling file: " + imageIndex);
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageIndex).build();
@@ -113,6 +113,7 @@ public class TextRecognition {
 
             if (hasCarAndText) {
                 outputLines.add(lineText.toString());
+                System.out.print("has charandtext: "+ lineText.toString());
             }
 
             String receiptHandle = message.receiptHandle();
