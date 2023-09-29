@@ -57,6 +57,13 @@ public class CarDetection {
                 }
             }
         }
+        // Send termination message (-1) 
+        SendMessageRequest sendTerminationMsgRequest = SendMessageRequest.builder()
+                .queueUrl(sqsQueueUrl)
+                .messageBody("-1")
+                .build();
+        sqs.sendMessage(sendTerminationMsgRequest);
+        System.out.println("Sent termination message to SQS.");
 
         rekognition.close();
         s3.close();
