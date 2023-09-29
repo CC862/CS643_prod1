@@ -85,7 +85,9 @@ public class TextRecognition {
                 // Exit loop if termination message is received
                 break;
             }
-            System.out.println("Polling file: " + imageIndex);
+
+            // Add polling information to the output
+            outputLines.add("Polling file: " + imageIndex);
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageIndex).build();
             byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
