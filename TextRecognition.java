@@ -88,6 +88,7 @@ public class TextRecognition {
 
             // Add polling information to the output
             String pollingInfo = "Polling file: " + imageIndex;
+            system.out.println("now polling file: "+ imageIndex);
             outputLines.add(pollingInfo);
 
             // Capture and add the additional information
@@ -100,29 +101,11 @@ public class TextRecognition {
             String md5MessageBody = message.md5OfBody();
             outputLines.add("MD5 of message body: " + md5MessageBody);
 
-            String senderAccountId = message.attributes().get("SenderId");
-            outputLines.add("Sender account ID: " + senderAccountId);
+            //String senderAccountId = message.attributes().get("SenderId");
+            //outputLines.add("Sender account ID: " + senderAccountId);
 
-            String sentTimestamp = message.attributes().get("SentTimestamp");
-            outputLines.add("Sent: " + sentTimestamp);
 
-            String firstReceivedTimestamp = message.attributes().get("ApproximateFirstReceiveTimestamp");
-            outputLines.add("First received: " + firstReceivedTimestamp);
-
-            String receiveCount = message.attributes().get("ApproximateReceiveCount");
-            outputLines.add("Receive count: " + receiveCount);
-
-            String messageAttributesCount = String.valueOf(message.messageAttributes().size());
-            outputLines.add("Message attributes count: " + messageAttributesCount);
-
-            //String messageAttributesSize = String.valueOf(receiveMessageResponse.messages().get(0).messageAttributeNames().size());
-            //outputLines.add("Message attributes size: " + messageAttributesSize);
-
-            String md5MessageAttributes = message.md5OfMessageAttributes();
-            outputLines.add("MD5 of message attributes: " + md5MessageAttributes);
-
-            // Process the image and add text detection information here...
-
+            // image and add text detection 
             String receiptHandle = message.receiptHandle();
             DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
                     .queueUrl(sqsQueueUrl)
