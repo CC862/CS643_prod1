@@ -10,7 +10,7 @@
 
   ## compile and run program CarDetection.java ##
 1. compile project:
-  * mvn compile
+  * mvn clean compile
 
 2. run program:
   ```
@@ -19,7 +19,7 @@
 
 ## compile and run program TextRecognition.java ##
 1. compile project:
-  * mvn compile
+  * mvn clean compile
 
 2. run program:
   ```

@@ -79,7 +79,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <configuration>
-                            <mainClass>cmc.app.TextRecognitionApp</mainClass>
+                            <mainClass>cmc.app.TextRecognition</mainClass>
                         </configuration>
                     </plugin>
                 </plugins>
