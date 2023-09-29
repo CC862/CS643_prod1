@@ -62,8 +62,8 @@ public class TextRecognition {
 
         List<String> outputLines = new ArrayList<>(); // List to store output lines
 
-        // Add date and time stamp as the first line in the file
-        outputLines.add("Date and Time Stamp: " + formattedDateTime);
+        // Add date and time this was for testnig to write into file
+        //outputLines.add("Date and Time Stamp: " + formattedDateTime);
 
         while (true) {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
@@ -87,8 +87,9 @@ public class TextRecognition {
             }
 
             // Add polling information to the output
-            System.out.println("Polling file (printing line console): " + imageIndex);
-            outputLines.add("Polling file: " + imageIndex);
+            String pollingInfo = "Polling file: " + imageIndex;
+            System.out.println(pollingInfo);
+            outputLines.add(pollingInfo);
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageIndex).build();
             byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
