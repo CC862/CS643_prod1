@@ -115,8 +115,8 @@ public class TextRecognition {
             String messageAttributesCount = String.valueOf(message.messageAttributes().size());
             outputLines.add("Message attributes count: " + messageAttributesCount);
 
-            String messageAttributesSize = String.valueOf(receiveMessageResponse.messages().get(0).messageAttributeNames().size());
-            outputLines.add("Message attributes size: " + messageAttributesSize);
+            //String messageAttributesSize = String.valueOf(receiveMessageResponse.messages().get(0).messageAttributeNames().size());
+            //outputLines.add("Message attributes size: " + messageAttributesSize);
 
             String md5MessageAttributes = message.md5OfMessageAttributes();
             outputLines.add("MD5 of message attributes: " + md5MessageAttributes);
