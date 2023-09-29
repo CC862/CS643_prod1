@@ -87,6 +87,7 @@ public class TextRecognition {
             }
 
             // Add polling information to the output
+            System.out.print("Polling file(printing line): " + imageIndex);
             outputLines.add("Polling file: " + imageIndex);
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageIndex).build();
