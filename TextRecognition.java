@@ -92,13 +92,13 @@ public class TextRecognition {
                     .build();
 
             DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
-            System.out.println(detectTextResponse);  // for debug
+            //System.out.println(detectTextResponse);  // for debug
 
             for (TextDetection text : detectTextResponse.textDetections()) {
                 if (text.type().equals("LINE")) {
                     writer.write(imageIndex + ": " + text.detectedText());
                     writer.newLine();
-                    writer.flush();  // add this line to flush the writer
+                    writer.flush();  // flush the writer
                 }
             }
 
