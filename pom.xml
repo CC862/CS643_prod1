@@ -9,32 +9,30 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <dependencies>
-        <dependencies>
-            <!-- AWS SDK for Java -->
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>aws-sdk-java</artifactId>
-                <version>2.17.89</version> <!-- Please replace with the latest version -->
-            </dependency>
-            <!-- AWS SDK for S3 -->
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>s3</artifactId>
-                <version>2.17.89</version> <!-- Please replace with the latest version -->
-            </dependency>
-            <!-- AWS SDK for Rekognition -->
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>rekognition</artifactId>
-                <version>2.17.89</version> <!-- Please replace with the latest version -->
-            </dependency>
-            <!-- AWS SDK for SQS -->
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>sqs</artifactId>
-                <version>2.17.89</version> <!-- Please replace with the latest version -->
-            </dependency>
-        </dependencies>
+        <!-- AWS SDK for Java -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>aws-sdk-java</artifactId>
+            <version>2.17.89</version> <!-- Please replace with the latest version -->
+        </dependency>
+        <!-- AWS SDK for S3 -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.17.89</version> <!-- Please replace with the latest version -->
+        </dependency>
+        <!-- AWS SDK for Rekognition -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>rekognition</artifactId>
+            <version>2.17.89</version> <!-- Please replace with the latest version -->
+        </dependency>
+        <!-- AWS SDK for SQS -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sqs</artifactId>
+            <version>2.17.89</version> <!-- Please replace with the latest version -->
+        </dependency>
 
     </dependencies>
     <build>
