@@ -1,5 +1,3 @@
-package cmc.app;
-
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
@@ -17,6 +15,8 @@ import java.io.IOException;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TextRecognition {
 
@@ -38,27 +38,27 @@ public class TextRecognition {
 
         String bucketName = "njit-cs-643";
         String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/261847612621/CMCImageQueue";
-       
+
         // Get the current date and time
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String formattedDateTime = now.format(formatter);
 
-        // Create the output file name with the dtate 
+        // Create the output file name with the date
         String outputFilePath = "output/textrec_output_" + formattedDateTime + ".txt";
 
         // Create output file
         File outputFile = new File(outputFilePath);
         try {
-            boolean fileCreated = outputFile.createNewFile();  
+            boolean fileCreated = outputFile.createNewFile();
             if (!fileCreated) {
                 System.out.println("File already exists or failed to be created.");
             }
         } catch (IOException e) {
-            e.printStackTrace();  // Handle exception 
+            e.printStackTrace();  // Handle exception
         }
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath));
+        List<String> outputLines = new ArrayList<>(); // List to store output lines
 
         while (true) {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
@@ -80,7 +80,7 @@ public class TextRecognition {
                 // Exit loop if termination message is received
                 break;
             }
-            System.out.println("Polling file: " + imageIndex); 
+            System.out.println("Polling file: " + imageIndex);
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageIndex).build();
             byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
@@ -92,19 +92,12 @@ public class TextRecognition {
                     .build();
 
             DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
-            //System.out.println(detectTextResponse);  // for debug
 
             for (TextDetection text : detectTextResponse.textDetections()) {
                 if (text.type().equals("LINE")) {
-                    writer.write(imageIndex + ": " + text.detectedText());
-                    writer.newLine();
-                    //writer.flush();  // flush the writer
+                    outputLines.add(imageIndex + ": " + text.detectedText());
                 }
             }
-
-            // Flush and close the writer after each message
-            //writer.flush();
-            //writer.close();
 
             String receiptHandle = message.receiptHandle();
             DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
@@ -114,12 +107,16 @@ public class TextRecognition {
             sqs.deleteMessage(deleteMessageRequest);
         }
 
-        //writer = new BufferedWriter(new FileWriter(outputFilePath, true));
-        if (writer != null) {
-            writer.close(); // Close the writer after the loop
+        // Write the accumulated lines to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
+            for (String line : outputLines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        //writer.close();
         rekognition.close();
         s3.close();
         sqs.close();
