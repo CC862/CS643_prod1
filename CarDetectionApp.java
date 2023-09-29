@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import software.amazon.awssdk.core.SdkBytes;
 
 
 public class CarDetectionApp {
@@ -25,7 +26,7 @@ public class CarDetectionApp {
             byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
             DetectLabelsRequest detectLabelsRequest = DetectLabelsRequest.builder()
                     .image(Image.builder()
-                            .bytes(RequestBody.fromBytes(imageBytes))
+                            .bytes(SdkBytes.fromByteArray(imageBytes))  // This line is modified
                             .build())
                     .maxLabels(10)
                     .build();
