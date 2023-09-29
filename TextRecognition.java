@@ -98,9 +98,13 @@ public class TextRecognition {
                 if (text.type().equals("LINE")) {
                     writer.write(imageIndex + ": " + text.detectedText());
                     writer.newLine();
-                    writer.flush();  // flush the writer
+                    //writer.flush();  // flush the writer
                 }
             }
+
+            // Flush and close the writer after each message
+            writer.flush();
+            writer.close();
 
             String receiptHandle = message.receiptHandle();
             DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
@@ -109,6 +113,8 @@ public class TextRecognition {
                     .build();
             sqs.deleteMessage(deleteMessageRequest);
         }
+
+        writer = new BufferedWriter(new FileWriter(outputFilePath, true));
 
         writer.close();
         rekognition.close();
