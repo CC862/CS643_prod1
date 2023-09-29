@@ -88,7 +88,7 @@ public class TextRecognition {
 
             // Add polling information to the output
             String pollingInfo = "Polling file: " + imageIndex;
-            system.out.println("now polling file: "+ imageIndex);
+            System.out.println("now polling file: "+ imageIndex);
             outputLines.add(pollingInfo);
 
             // Capture and add the additional information
