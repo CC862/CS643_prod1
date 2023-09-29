@@ -14,6 +14,10 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class TextRecognition {
 
     public static void main(String[] args) throws IOException {
@@ -34,7 +38,25 @@ public class TextRecognition {
 
         String bucketName = "njit-cs-643";
         String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/261847612621/CMCImageQueue";
-        String outputFilePath = "/path/to/output.txt"; // Update with the actual path
+       
+        // Get the current date and time
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        String formattedDateTime = now.format(formatter);
+
+        // Create the output file name with the dtate 
+        String outputFilePath = "textrec_output_" + formattedDateTime + ".txt";
+
+        // Create output file
+        File outputFile = new File(outputFilePath);
+        try {
+            boolean fileCreated = outputFile.createNewFile();  
+            if (!fileCreated) {
+                System.out.println("File already exists or failed to be created.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();  // Handle exception 
+        }
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath));
 
