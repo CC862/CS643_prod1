@@ -1,5 +1,3 @@
-package cmc.app;
-
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
@@ -61,6 +59,9 @@ public class TextRecognition {
         }
 
         List<String> outputLines = new ArrayList<>(); // List to store output lines
+
+        // Add date and time stamp as the first line in the file
+        outputLines.add("Date and Time Stamp: " + formattedDateTime);
 
         while (true) {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
