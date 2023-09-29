@@ -62,8 +62,8 @@ public class TextRecognition {
 
         List<String> outputLines = new ArrayList<>(); // List to store output lines
 
-        // Add date and time this was for testnig to write into file
-        //outputLines.add("Date and Time Stamp: " + formattedDateTime);
+        // Add date and time stamp as the first line in the file
+        outputLines.add("Date and Time Stamp: " + formattedDateTime);
 
         while (true) {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
@@ -88,33 +88,40 @@ public class TextRecognition {
 
             // Add polling information to the output
             String pollingInfo = "Polling file: " + imageIndex;
-            System.out.println(pollingInfo);
             outputLines.add(pollingInfo);
 
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(imageIndex).build();
-            byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
+            // Capture and add the additional information
+            String messageId = message.messageId();
+            outputLines.add("ID: " + messageId);
 
-            DetectTextRequest detectTextRequest = DetectTextRequest.builder()
-                    .image(Image.builder()
-                            .bytes(SdkBytes.fromByteArray(imageBytes))
-                            .build())
-                    .build();
+            int messageSize = message.body().length();
+            outputLines.add("Size: " + messageSize + " bytes");
 
-            DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
+            String md5MessageBody = message.md5OfBody();
+            outputLines.add("MD5 of message body: " + md5MessageBody);
 
-            boolean hasCarAndText = false;
-            StringBuilder lineText = new StringBuilder(imageIndex + ": ");
+            String senderAccountId = message.attributes().get("SenderId");
+            outputLines.add("Sender account ID: " + senderAccountId);
 
-            for (TextDetection text : detectTextResponse.textDetections()) {
-                if (text.type().equals("LINE")) {
-                    hasCarAndText = true;
-                    lineText.append(text.detectedText()).append(" ");
-                }
-            }
+            String sentTimestamp = message.attributes().get("SentTimestamp");
+            outputLines.add("Sent: " + sentTimestamp);
 
-            if (hasCarAndText) {
-                outputLines.add(lineText.toString());
-            }
+            String firstReceivedTimestamp = message.attributes().get("ApproximateFirstReceiveTimestamp");
+            outputLines.add("First received: " + firstReceivedTimestamp);
+
+            String receiveCount = message.attributes().get("ApproximateReceiveCount");
+            outputLines.add("Receive count: " + receiveCount);
+
+            String messageAttributesCount = String.valueOf(message.messageAttributes().size());
+            outputLines.add("Message attributes count: " + messageAttributesCount);
+
+            String messageAttributesSize = String.valueOf(message.messageAttributeNames().size());
+            outputLines.add("Message attributes size: " + messageAttributesSize);
+
+            String md5MessageAttributes = message.md5OfMessageAttributes();
+            outputLines.add("MD5 of message attributes: " + md5MessageAttributes);
+
+            // Process the image and add text detection information here...
 
             String receiptHandle = message.receiptHandle();
             DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
