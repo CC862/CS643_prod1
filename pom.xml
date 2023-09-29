@@ -10,6 +10,7 @@
     </properties>
     <dependencies>
         <!-- Your dependencies here -->
+        
     </dependencies>
     <build>
         <plugins>
