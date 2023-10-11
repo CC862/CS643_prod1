@@ -72,6 +72,7 @@ public class TextRecognition {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
                     .queueUrl(sqsQueueUrl)
                     .maxNumberOfMessages(1)
+                    .waitTimeSeconds(30) 
                     .build();
 
             ReceiveMessageResponse receiveMessageResponse = sqs.receiveMessage(receiveMessageRequest);
@@ -128,7 +129,7 @@ public class TextRecognition {
             e.printStackTrace();
             System.err.println("Error writing to file: " + e.getMessage());
         }
-        
+
         // Close all AWS services clients 
         rekognition.close();
         s3.close();
