@@ -9,6 +9,14 @@
      aws_session_token= YOUR_TOKEN
   ```
 
+ ## cd into working dir of "CS643_prod1" do this on both vms ##
+1. run this command to cd:
+  ```
+    cd CS643_prod1/ 
+  ```
+  * NOTE: do this on both VM's
+ 
+
   ## compile and run program CarDetection.java ##
 1. compile project:
   * mvn clean compile
