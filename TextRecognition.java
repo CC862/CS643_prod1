@@ -23,9 +23,12 @@ import java.util.List;
 public class TextRecognition {
 
     public static void main(String[] args) throws IOException {
+        //creds
         String profileName = "default";
         ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.create(profileName);
 
+
+        // Initialize AWS services clients: S3, Rekognition, and SQS with the specified region and credentials
         Region region = Region.US_EAST_1;
 
         S3Client s3 = S3Client.builder().region(region)
@@ -100,6 +103,7 @@ public class TextRecognition {
 
             String md5MessageBody = message.md5OfBody();
             outputLines.add("MD5 of message body: " + md5MessageBody);
+            outputLines.add(" ");
 
             //String senderAccountId = message.attributes().get("SenderId");
             //outputLines.add("Sender account ID: " + senderAccountId);
@@ -124,7 +128,8 @@ public class TextRecognition {
             e.printStackTrace();
             System.err.println("Error writing to file: " + e.getMessage());
         }
-
+        
+        // Close all AWS services clients 
         rekognition.close();
         s3.close();
         sqs.close();
