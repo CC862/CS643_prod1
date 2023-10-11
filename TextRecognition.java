@@ -72,7 +72,7 @@ public class TextRecognition {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
                     .queueUrl(sqsQueueUrl)
                     .maxNumberOfMessages(1)
-                    .waitTimeSeconds(30) 
+                    .waitTimeSeconds(20) 
                     .build();
 
             ReceiveMessageResponse receiveMessageResponse = sqs.receiveMessage(receiveMessageRequest);
