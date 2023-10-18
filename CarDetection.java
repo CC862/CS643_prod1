@@ -10,70 +10,67 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
+import java.util.List;
+
 public class CarDetection {
 
     public static void main(String[] args) {
-        //creds
+        // Setting up AWS credentials
         String profileName = "default";
-        ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.create(profileName);
+        ProfileCredentialsProvider credentialsProvider;
+        credentialsProvider = ProfileCredentialsProvider.create(profileName);
 
+        // Setting up region for AWS services
         Region region = Region.US_EAST_1;
 
-        // Initialize AWS services clients: S3, Rekognition, and SQS with the specified region and credentials
-        S3Client s3 = S3Client.builder().region(region)
-                .credentialsProvider(credentialsProvider)
-                .build();
-        RekognitionClient rekognition = RekognitionClient.builder().region(region)
-                .credentialsProvider(credentialsProvider)
-                .build();
-        SqsClient sqs = SqsClient.builder().region(region)
-                .credentialsProvider(credentialsProvider)
-                .build();
+        // Creating clients for S3, Rekognition, and SQS
+        S3Client s3 = S3Client.builder().region(region).credentialsProvider(credentialsProvider).build();
+        RekognitionClient rekognition = RekognitionClient.builder().region(region).credentialsProvider(credentialsProvider).build();
+        SqsClient sqs = SqsClient.builder().region(region).credentialsProvider(credentialsProvider).build();
 
+        // Setting up bucket name and SQS URL
         String bucketName = "njit-cs-643";
         String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/261847612621/CMCImageQueue";
 
+        // Loop to process 10 images
         for (int i = 1; i <= 10; i++) {
-            String key = i + ".jpg";
-            // Create a req to get the image from the specified S3 bucket, provided from project description
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(key).build();
+            String imageName = i + ".jpg";
 
-            // Retrieve the image bytes from S3
+            // Getting image from S3
+            GetObjectRequest getObjectRequest = new GetObjectRequest();
+            getObjectRequest = getObjectRequest.toBuilder().bucket(bucketName).key(imageName).build();
             byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
 
-            // Create a request to detect labels in the image using Rekognition
-            DetectLabelsRequest detectLabelsRequest = DetectLabelsRequest.builder()
-                    .image(Image.builder()
-                            .bytes(SdkBytes.fromByteArray(imageBytes))
-                            .build())
-                    .maxLabels(10)
-                    .build();
+            // Preparing request for Rekognition
+            Image img = new Image();
+            img = img.toBuilder().bytes(SdkBytes.fromByteArray(imageBytes)).build();
+            DetectLabelsRequest detectLabelsRequest = new DetectLabelsRequest();
+            detectLabelsRequest = detectLabelsRequest.toBuilder().image(img).maxLabels(10).build();
 
-            // label detect
+            // Detecting labels using Rekognition
             DetectLabelsResponse detectLabelsResponse = rekognition.detectLabels(detectLabelsRequest);
+            List<Label> detectedLabels = detectLabelsResponse.labels();
 
-            for (Label label : detectLabelsResponse.labels()) {
-                // if a detected label is "Car" with confidence above 90%
-                if (label.name().equalsIgnoreCase("Car") && label.confidence() > 90) {
-                // message with the image index and send it to the specified SQS queue, I had to make my own queue 
-                    SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
-                            .queueUrl(sqsQueueUrl)
-                            .messageBody(key)
-                            .build();
+            // Checking if 'Car' label exists and has a confidence over 90%
+            for (int j = 0; j < detectedLabels.size(); j++) {
+                Label label = detectedLabels.get(j);
+                if ("Car".equalsIgnoreCase(label.name()) && label.confidence() > 90.0) {
+                    // Sending the image name to SQS if the above condition is true
+                    SendMessageRequest sendMessageRequest = new SendMessageRequest();
+                    sendMessageRequest = sendMessageRequest.toBuilder().queueUrl(sqsQueueUrl).messageBody(imageName).build();
                     sqs.sendMessage(sendMessageRequest);
-                    System.out.println("Sent image index " + key + " to SQS.");
+                    System.out.println("Sent image name " + imageName + " to SQS.");
                 }
             }
         }
-        // Send termination message (-1) 
-        SendMessageRequest sendTerminationMsgRequest = SendMessageRequest.builder()
-                .queueUrl(sqsQueueUrl)
-                .messageBody("-1")
-                .build();
-        sqs.sendMessage(sendTerminationMsgRequest);
+
+        // Sending termination message of -1
+        SendMessageRequest terminationMsg = new SendMessageRequest();
+        terminationMsg = terminationMsg.toBuilder().queueUrl(sqsQueueUrl).messageBody("-1").build();
+        sqs.sendMessage(terminationMsg);
         System.out.println("Sent termination message to SQS.");
-        
-        // Close all AWS services clients 
+
+        // Closing all AWS clients
         rekognition.close();
         s3.close();
         sqs.close();
