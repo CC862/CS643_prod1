@@ -37,15 +37,15 @@ public class CarDetection {
             String imageName = i + ".jpg";
 
             // Getting image from S3
-            GetObjectRequest getObjectRequest = new GetObjectRequest();
-            getObjectRequest = getObjectRequest.toBuilder().bucket(bucketName).key(imageName).build();
+            GetObjectRequest.Builder getObjectRequestBuilder = GetObjectRequest.builder();
+            GetObjectRequest getObjectRequest = getObjectRequestBuilder.bucket(bucketName).key(imageName).build();
             byte[] imageBytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
 
             // Preparing request for Rekognition
-            Image img = new Image();
-            img = img.toBuilder().bytes(SdkBytes.fromByteArray(imageBytes)).build();
-            DetectLabelsRequest detectLabelsRequest = new DetectLabelsRequest();
-            detectLabelsRequest = detectLabelsRequest.toBuilder().image(img).maxLabels(10).build();
+           Image.Builder imageBuilder = Image.builder();
+           Image img = imageBuilder.bytes(SdkBytes.fromByteArray(imageBytes)).build();
+           DetectLabelsRequest.Builder detectLabelsRequestBuilder = DetectLabelsRequest.builder();
+           DetectLabelsRequest detectLabelsRequest = detectLabelsRequestBuilder.image(img).maxLabels(10).build();
 
             // Detecting labels using Rekognition
             DetectLabelsResponse detectLabelsResponse = rekognition.detectLabels(detectLabelsRequest);
@@ -64,9 +64,9 @@ public class CarDetection {
             }
         }
 
-        // Sending termination message of -1
-        SendMessageRequest terminationMsg = new SendMessageRequest();
-        terminationMsg = terminationMsg.toBuilder().queueUrl(sqsQueueUrl).messageBody("-1").build();
+        // Sending termination message
+        SendMessageRequest.Builder terminationMsgBuilder = SendMessageRequest.builder();
+        SendMessageRequest terminationMsg = terminationMsgBuilder.queueUrl(sqsQueueUrl).messageBody("-1").build();
         sqs.sendMessage(terminationMsg);
         System.out.println("Sent termination message to SQS.");
 
