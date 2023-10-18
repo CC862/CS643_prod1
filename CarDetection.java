@@ -52,21 +52,26 @@ public class CarDetection {
             List<Label> detectedLabels = detectLabelsResponse.labels();
 
             // Checking if 'Car' label exists and has a confidence over 90%
-            for (int j = 0; j < detectedLabels.size(); j++) {
-                Label label = detectedLabels.get(j);
-                if ("Car".equalsIgnoreCase(label.name()) && label.confidence() > 90.0) {
-                    // Sending the image name to SQS if the above condition is true
-                    SendMessageRequest sendMessageRequest = new SendMessageRequest();
-                    sendMessageRequest = sendMessageRequest.toBuilder().queueUrl(sqsQueueUrl).messageBody(imageName).build();
-                    sqs.sendMessage(sendMessageRequest);
-                    System.out.println("Sent image name " + imageName + " to SQS.");
+               for (int j = 0; j < detectedLabels.size(); j++) {
+                        Label label = detectedLabels.get(j);
+                        if ("Car".equalsIgnoreCase(label.name()) && label.confidence() > 90.0) {
+                        // Sending the image name to SQS if the above condition is true
+                        SendMessageRequest sendMessageRequest = SendMessageRequest.builder()
+                                .queueUrl(sqsQueueUrl)
+                                .messageBody(imageName)
+                                .build();
+                        sqs.sendMessage(sendMessageRequest);
+                        System.out.println("Sent image name " + imageName + " to SQS.");
+                        }
                 }
-            }
+    
         }
 
         // Sending termination message
-        SendMessageRequest.Builder terminationMsgBuilder = SendMessageRequest.builder();
-        SendMessageRequest terminationMsg = terminationMsgBuilder.queueUrl(sqsQueueUrl).messageBody("-1").build();
+        SendMessageRequest terminationMsg = SendMessageRequest.builder()
+                .queueUrl(sqsQueueUrl)
+                .messageBody("-1")
+                .build();
         sqs.sendMessage(terminationMsg);
         System.out.println("Sent termination message to SQS.");
 
