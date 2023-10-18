@@ -1,12 +1,9 @@
 package cmc.app;
 
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
-import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
-import software.amazon.awssdk.services.rekognition.model.*;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
@@ -18,119 +15,90 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TextRecognition {
 
-    public static void main(String[] args) throws IOException {
-        //creds
-        String profileName = "default";
-        ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.create(profileName);
+    public static void main(String[] args) {
+        // Creating variable for profile name
+        String profile = "default";
+        ProfileCredentialsProvider provider = ProfileCredentialsProvider.create(profile);
 
+        // Setting up AWS services 
+        Region myRegion = Region.US_EAST_1;
+        S3Client s3 = S3Client.builder().region(myRegion).credentialsProvider(provider).build();
+        RekognitionClient rekognition = RekognitionClient.builder().region(myRegion).credentialsProvider(provider).build();
+        SqsClient sqs = SqsClient.builder().region(myRegion).credentialsProvider(provider).build();
 
-        // Initialize AWS services clients: S3, Rekognition, and SQS with the specified region and credentials
-        Region region = Region.US_EAST_1;
+        // Variables for bucket and queue
+        String bucket = "njit-cs-643";
+        String queueUrl = "https://sqs.us-east-1.amazonaws.com/261847612621/CMCImageQueue";
 
-        S3Client s3 = S3Client.builder().region(region)
-                .credentialsProvider(credentialsProvider)
-                .build();
-        RekognitionClient rekognition = RekognitionClient.builder().region(region)
-                .credentialsProvider(credentialsProvider)
-                .build();
-        SqsClient sqs = SqsClient.builder().region(region)
-                .credentialsProvider(credentialsProvider)
-                .build();
+        // Getting the current time
+        LocalDateTime timeNow = LocalDateTime.now();
+        DateTimeFormatter formatTime = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        String timeString = timeNow.format(formatTime);
 
-        String bucketName = "njit-cs-643";
-        String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/261847612621/CMCImageQueue";
-
-        // Get the current date and time
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-        String formattedDateTime = now.format(formatter);
-
-        // Create the output file name with the date
-        String outputFilePath = "output/textrec_output_" + formattedDateTime + ".txt";
-
-        // Create output file
-        File outputFile = new File(outputFilePath);
+        // Making a file with the time in its name
+        String filePath = "output/textrec_output_" + timeString + ".txt";
+        File file = new File(filePath);
+        
         try {
-            boolean fileCreated = outputFile.createNewFile();
-            if (!fileCreated) {
-                System.out.println("File already exists or failed to be created.");
+            if (file.createNewFile()) {
+                System.out.println("File created.");
+            } else {
+                System.out.println("File already exists.");
             }
         } catch (IOException e) {
-            e.printStackTrace();  // Handle exception
+            System.out.println("An error occurred when creating the file.");
+            e.printStackTrace();
         }
 
-        List<String> outputLines = new ArrayList<>(); // List to store output lines
-
-        // Add date and time stamp as the first line in the file
-        outputLines.add("Date and Time Stamp: " + formattedDateTime);
+        ArrayList<String> linesForFile = new ArrayList<>();
+        linesForFile.add("Date and Time: " + timeString);
 
         while (true) {
-            ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
-                    .queueUrl(sqsQueueUrl)
-                    .maxNumberOfMessages(1)
-                    .waitTimeSeconds(20) 
-                    .build();
+            ReceiveMessageRequest getMessage = ReceiveMessageRequest.builder().queueUrl(queueUrl).maxNumberOfMessages(1).waitTimeSeconds(20).build();
+            ReceiveMessageResponse messageResponse = sqs.receiveMessage(getMessage);
 
-            ReceiveMessageResponse receiveMessageResponse = sqs.receiveMessage(receiveMessageRequest);
-
-            if (receiveMessageResponse.messages().isEmpty()) {
-                // No new messages, continue polling or implement back-off strategy
-                continue;
+            if (messageResponse.messages().isEmpty()) {
+                continue;  // Just skip if no new messages
             }
 
-            Message message = receiveMessageResponse.messages().get(0);
-            String imageIndex = message.body();
+            Message myMessage = messageResponse.messages().get(0);
+            String imageNum = myMessage.body();
 
-            if (imageIndex.equals("-1")) {
-                // Exit loop if termination message is received
-                break;
+            if (imageNum.equals("-1")) {
+                break;  // Stop the loop
             }
 
-            // Add polling information to the output
-            String pollingInfo = "Polling file: " + imageIndex;
-            System.out.println("now polling file: "+ imageIndex);
-            outputLines.add(pollingInfo);
+            System.out.println("Checking file: "+ imageNum);
+            linesForFile.add("Checking file: " + imageNum);
 
-            // Capture and add the additional information
-            String messageId = message.messageId();
-            outputLines.add("ID: " + messageId);
+            String messageId = myMessage.messageId();
+            linesForFile.add("ID: " + messageId);
+            linesForFile.add("Size: " + myMessage.body().length() + " bytes");
+            linesForFile.add("MD5: " + myMessage.md5OfBody());
+            linesForFile.add(" ");
 
-            int messageSize = message.body().length();
-            outputLines.add("Size: " + messageSize + " bytes");
-
-            String md5MessageBody = message.md5OfBody();
-            outputLines.add("MD5 of message body: " + md5MessageBody);
-            outputLines.add(" ");
-
-            //String senderAccountId = message.attributes().get("SenderId");
-            //outputLines.add("Sender account ID: " + senderAccountId);
-
-
-            // image and add text detection 
-            String receiptHandle = message.receiptHandle();
-            DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
-                    .queueUrl(sqsQueueUrl)
-                    .receiptHandle(receiptHandle)
-                    .build();
-            sqs.deleteMessage(deleteMessageRequest);
+            // Deleting the processed message
+            String receipt = myMessage.receiptHandle();
+            DeleteMessageRequest deleteIt = DeleteMessageRequest.builder().queueUrl(queueUrl).receiptHandle(receipt).build();
+            sqs.deleteMessage(deleteIt);
         }
 
-        // Write the accumulated lines to the file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
-            for (String line : outputLines) {
+        // Save everything to the file
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
+            for (String line : linesForFile) {
                 writer.write(line);
                 writer.newLine();
             }
+            writer.close();
         } catch (IOException e) {
+            System.out.println("An error occurred when writing to the file.");
             e.printStackTrace();
-            System.err.println("Error writing to file: " + e.getMessage());
         }
 
-        // Close all AWS services clients 
         rekognition.close();
         s3.close();
         sqs.close();
