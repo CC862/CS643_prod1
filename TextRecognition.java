@@ -81,13 +81,24 @@ public class TextRecognition {
             System.out.println("now polling file: "+ imageIndex);
             outputLines.add("Polling file: " + imageIndex);
 
+            // Capture and add the additional information
+            String messageId = message.messageId();
+            outputLines.add("ID: " + messageId);
+
+            int messageSize = message.body().length();
+            outputLines.add("Size: " + messageSize + " bytes");
+
+            String md5MessageBody = message.md5OfBody();
+            outputLines.add("MD5 of message body: " + md5MessageBody);
+            outputLines.add(" ");
+
             // Fetch the image bytes from S3
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(imageIndex)
                 .build();
             byte[] bytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
-
+            
             // Detect text using Rekognition
             DetectTextRequest detectTextRequest = DetectTextRequest.builder()
                 .image(Image.builder()
