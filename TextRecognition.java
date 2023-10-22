@@ -118,20 +118,17 @@ public class TextRecognition {
             .key(imageIndex + ".jpg")
             .build();
 
-            GetObjectResponse getObjectResponse = s3.getObject(getObjectRequest);
-            try (InputStream objectData = getObjectResponse.responseBody().get()) {
+            ResponseInputStream<GetObjectResponse> responseStream = s3.getObject(getObjectRequest);
+            try (InputStream objectData = responseStream) {
                 imageBytes = SdkBytes.fromInputStream(objectData);
             }
-
-                    
 
             // Use Rekognition's DetectText API
             DetectTextRequest detectTextRequest = DetectTextRequest.builder()
                     .image(Image.builder().bytes(imageBytes).build())
                     .build();
 
-            DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
-
+                    
             // Process and store the result
             for (TextDetection textDetection : detectTextResponse.textDetections()) {
                 String detectedText = textDetection.detectedText();
