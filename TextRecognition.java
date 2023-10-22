@@ -108,11 +108,6 @@ public class TextRecognition {
             outputLines.add("MD5 of message body: " + md5MessageBody);
             outputLines.add(" ");
 
-            // Declare the imageBytes variable outside the try-with-resources block
-            SdkBytes imageBytes = null;
-           // DetectTextResponse detectTextResponse = rekognitionClient.detectText(detectTextRequest);
-
-
            // Fetch the image from S3
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
             .bucket(bucketName)
@@ -120,6 +115,7 @@ public class TextRecognition {
             .build();
 
             ResponseInputStream<GetObjectResponse> responseStream = s3.getObject(getObjectRequest);
+            SdkBytes imageBytes = null;
             try (InputStream objectData = responseStream) {
                 imageBytes = SdkBytes.fromInputStream(objectData);
             }
@@ -127,9 +123,8 @@ public class TextRecognition {
             DetectTextRequest detectTextRequest = DetectTextRequest.builder()
             .image(Image.builder().bytes(imageBytes).build())
             .build();
-    
-            DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
 
+            DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
 
             // Process and store the result
             for (TextDetection textDetection : detectTextResponse.textDetections()) {
