@@ -108,15 +108,16 @@ public class TextRecognition {
             outputLines.add("MD5 of message body: " + md5MessageBody);
             outputLines.add(" ");
 
-            // Fetch the image from S3
+           // Fetch the image from S3
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(imageIndex + ".jpg")
-                    .build();
+            .bucket(bucketName)
+            .key(imageIndex + ".jpg")
+            .build();
 
-                ResponseInputStream<GetObjectResponse> objectData = s3.getObject(getObjectRequest);
-                SdkBytes imageBytes = SdkBytes.fromInputStream(objectData);
-                objectData.close();
+            try (InputStream objectData = s3.getObject(getObjectRequest).asInputStream()) {
+            SdkBytes imageBytes = SdkBytes.fromInputStream(objectData);
+            }
+
                     
 
             // Use Rekognition's DetectText API
