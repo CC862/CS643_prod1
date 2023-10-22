@@ -70,6 +70,7 @@ public class TextRecognition {
         // Add date and time stamp as the first line in the file
         outputLines.add("Date and Time Stamp: " + formattedDateTime);
 
+
         while (true) {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
                     .queueUrl(sqsQueueUrl)
@@ -108,6 +109,9 @@ public class TextRecognition {
             outputLines.add("MD5 of message body: " + md5MessageBody);
             outputLines.add(" ");
 
+            // Declare the imageBytes variable outside the try-with-resources block
+            SdkBytes imageBytes = null;
+
            // Fetch the image from S3
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
             .bucket(bucketName)
@@ -115,7 +119,7 @@ public class TextRecognition {
             .build();
 
             try (ResponseInputStream<GetObjectResponse> objectData = s3.getObject(getObjectRequest)) {
-                SdkBytes imageBytes = SdkBytes.fromInputStream(objectData);
+                imageBytes = SdkBytes.fromInputStream(objectData);
             }
                     
 
