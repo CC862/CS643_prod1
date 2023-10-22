@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.sqs.model.*;
 import java.io.InputStream;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-
+import software.amazon.awssdk.services.rekognition.model.DetectTextRequest;
 
 
 import java.io.BufferedWriter;
