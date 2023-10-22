@@ -107,12 +107,10 @@ public class TextRecognition {
                 .build();
             DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
 
-            // Detect and log text with confidence over 90%
+            // detected text 
             for (TextDetection textDetection : detectTextResponse.textDetections()) {
-                if (textDetection.confidence() > 90.0) {
-                    outputLines.add("Detected Text: " + textDetection.detectedText());
-                    outputLines.add("Confidence: " + textDetection.confidence().toString());
-                }
+                outputLines.add("Detected Text: " + textDetection.detectedText());
+                outputLines.add("Confidence: " + textDetection.confidence().toString());
             }
 
             String receiptHandle = message.receiptHandle();
