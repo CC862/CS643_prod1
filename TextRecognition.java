@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
-import software.amazon.awssdk.services.s3.model.ResponseInputStream;
+import java.io.InputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 
@@ -118,9 +118,10 @@ public class TextRecognition {
             .key(imageIndex + ".jpg")
             .build();
 
-            try (ResponseInputStream<GetObjectResponse> objectData = s3.getObject(getObjectRequest)) {
+            try (InputStream objectData = s3.getObject(getObjectRequest).asInputStream()) {
                 imageBytes = SdkBytes.fromInputStream(objectData);
             }
+            
                     
 
             // Use Rekognition's DetectText API
