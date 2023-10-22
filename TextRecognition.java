@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.sqs.model.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,10 +22,9 @@ import java.util.List;
 public class TextRecognition {
 
     public static void main(String[] args) throws IOException {
-        //creds
+        // creds
         String profileName = "default";
         ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.create(profileName);
-
 
         // Initialize AWS services clients: S3, Rekognition, and SQS with the specified region and credentials
         Region region = Region.US_EAST_1;
@@ -72,7 +70,7 @@ public class TextRecognition {
             ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
                     .queueUrl(sqsQueueUrl)
                     .maxNumberOfMessages(1)
-                    .waitTimeSeconds(20) 
+                    .waitTimeSeconds(20)
                     .build();
 
             ReceiveMessageResponse receiveMessageResponse = sqs.receiveMessage(receiveMessageRequest);
@@ -92,7 +90,7 @@ public class TextRecognition {
 
             // Add polling information to the output
             String pollingInfo = "Polling file: " + imageIndex;
-            System.out.println("now polling file: "+ imageIndex);
+            System.out.println("now polling file: " + imageIndex);
             outputLines.add(pollingInfo);
 
             // Capture and add the additional information
@@ -106,11 +104,29 @@ public class TextRecognition {
             outputLines.add("MD5 of message body: " + md5MessageBody);
             outputLines.add(" ");
 
-            //String senderAccountId = message.attributes().get("SenderId");
-            //outputLines.add("Sender account ID: " + senderAccountId);
+            // Fetch the image from S3
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(imageIndex + ".jpg")
+                    .build();
 
+            SdkBytes imageBytes = SdkBytes.fromInputStream(s3.getObject(getObjectRequest).asInputStream());
 
-            // image and add text detection 
+            // Use Rekognition's DetectText API
+            DetectTextRequest detectTextRequest = DetectTextRequest.builder()
+                    .image(Image.builder().bytes(imageBytes).build())
+                    .build();
+
+            DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
+
+            // Process and store the result
+            for (TextDetection textDetection : detectTextResponse.textDetections()) {
+                String detectedText = textDetection.detectedText();
+                System.out.println("Detected: " + detectedText);
+                outputLines.add("Detected: " + detectedText);
+            }
+
+            // Delete the message from SQS after processing
             String receiptHandle = message.receiptHandle();
             DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder()
                     .queueUrl(sqsQueueUrl)
@@ -130,7 +146,7 @@ public class TextRecognition {
             System.err.println("Error writing to file: " + e.getMessage());
         }
 
-        // Close all AWS services clients 
+        // Close all AWS services clients
         rekognition.close();
         s3.close();
         sqs.close();
