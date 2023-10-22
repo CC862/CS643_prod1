@@ -12,8 +12,6 @@ import software.amazon.awssdk.services.sqs.model.*;
 import java.io.InputStream;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.rekognition.model.DetectTextRequest;
-
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -130,6 +128,8 @@ public class TextRecognition {
             .image(Image.builder().bytes(imageBytes).build())
             .build();
     
+            DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
+
 
             // Process and store the result
             for (TextDetection textDetection : detectTextResponse.textDetections()) {
