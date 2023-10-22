@@ -81,7 +81,7 @@ public class TextRecognition {
             System.out.println("now polling file: "+ imageIndex);
             outputLines.add("Polling file: " + imageIndex);
 
-            // Capture and add the additional information
+            // image info
             String messageId = message.messageId();
             outputLines.add("ID: " + messageId);
 
@@ -92,14 +92,14 @@ public class TextRecognition {
             outputLines.add("MD5 of message body: " + md5MessageBody);
             outputLines.add(" ");
 
-            // Fetch the image bytes from S3
+            // Fetch the image from S3
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(imageIndex)
                 .build();
             byte[] bytes = s3.getObjectAsBytes(getObjectRequest).asByteArray();
             
-            // Detect text using Rekognition
+            // Detect text Rekognition
             DetectTextRequest detectTextRequest = DetectTextRequest.builder()
                 .image(Image.builder()
                     .bytes(SdkBytes.fromByteArray(bytes))
@@ -107,10 +107,12 @@ public class TextRecognition {
                 .build();
             DetectTextResponse detectTextResponse = rekognition.detectText(detectTextRequest);
 
-            // Add detected text to output
+            // Detect and log text with confidence over 90%
             for (TextDetection textDetection : detectTextResponse.textDetections()) {
-                outputLines.add("Detected Text: " + textDetection.detectedText());
-                outputLines.add("Confidence: " + textDetection.confidence().toString());
+                if (textDetection.confidence() > 90.0) {
+                    outputLines.add("Detected Text: " + textDetection.detectedText());
+                    outputLines.add("Confidence: " + textDetection.confidence().toString());
+                }
             }
 
             String receiptHandle = message.receiptHandle();
