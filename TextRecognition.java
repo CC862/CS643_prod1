@@ -112,7 +112,7 @@ public class TextRecognition {
 
             // Declare the imageBytes variable outside the try-with-resources block
             SdkBytes imageBytes = null;
-            DetectTextResponse detectTextResponse = rekognitionClient.detectText(detectTextRequest);
+           // DetectTextResponse detectTextResponse = rekognitionClient.detectText(detectTextRequest);
 
 
            // Fetch the image from S3
@@ -126,11 +126,10 @@ public class TextRecognition {
                 imageBytes = SdkBytes.fromInputStream(objectData);
             }
 
-            // Use Rekognition's DetectText API
             DetectTextRequest detectTextRequest = DetectTextRequest.builder()
-                    .image(Image.builder().bytes(imageBytes).build())
-                    .build();
-
+            .image(Image.builder().bytes(imageBytes).build())
+            .build();
+    
 
             // Process and store the result
             for (TextDetection textDetection : detectTextResponse.textDetections()) {
