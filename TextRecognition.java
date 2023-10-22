@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 import java.io.InputStream;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 
@@ -111,6 +112,8 @@ public class TextRecognition {
 
             // Declare the imageBytes variable outside the try-with-resources block
             SdkBytes imageBytes = null;
+            DetectTextResponse detectTextResponse = rekognitionClient.detectText(detectTextRequest);
+
 
            // Fetch the image from S3
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -128,7 +131,7 @@ public class TextRecognition {
                     .image(Image.builder().bytes(imageBytes).build())
                     .build();
 
-                    
+
             // Process and store the result
             for (TextDetection textDetection : detectTextResponse.textDetections()) {
                 String detectedText = textDetection.detectedText();
